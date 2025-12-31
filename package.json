@@ -1,0 +1,27 @@
+{
+  "name": "overflow-kit",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r --parallel dev",
+    "test": "pnpm -r test",
+    "lint": "eslint packages/*/src",
+    "lint:fix": "eslint packages/*/src --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^20.11.0",
+    "@vitest/browser-playwright": "^4.0.16",
+    "eslint": "^9.17.0",
+    "playwright": "^1.57.0",
+    "prettier": "^3.2.0",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^4.0.16"
+  },
+  "packageManager": "pnpm@8.15.0"
+}
