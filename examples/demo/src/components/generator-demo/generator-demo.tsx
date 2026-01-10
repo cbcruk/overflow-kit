@@ -1,0 +1,212 @@
+import { useState, useRef, useCallback, useLayoutEffect } from 'react'
+import {
+  GeneratorCalculator,
+  type OverflowItem,
+  type OverflowResult,
+  type GeneratorState,
+  type Phase,
+} from '@overflow-kit/generator'
+
+const SAMPLE_ITEMS: OverflowItem[] = [
+  { key: 1, text: 'Dashboard' },
+  { key: 2, text: 'Analytics' },
+  { key: 3, text: 'Settings' },
+  { key: 4, text: 'Profile' },
+  { key: 5, text: 'Notifications' },
+  { key: 6, text: 'Help Center' },
+  { key: 7, text: 'Documentation' },
+]
+
+const PHASE_LABELS: Record<Phase, string> = {
+  idle: 'Idle',
+  rendering: 'Rendering',
+  measuring: 'Measuring',
+  calculating: 'Calculating',
+  complete: 'Complete',
+}
+
+const MEASURE_CONTAINER_STYLE: React.CSSProperties = {
+  position: 'absolute',
+  visibility: 'hidden',
+  pointerEvents: 'none',
+  top: 0,
+  left: 0,
+}
+
+export function GeneratorDemo(): JSX.Element {
+  const [containerWidth, setContainerWidth] = useState(400)
+  const [newItemText, setNewItemText] = useState('')
+  const [items, setItems] = useState<OverflowItem[]>(SAMPLE_ITEMS)
+  const [result, setResult] = useState<OverflowResult>({
+    visibleCount: 0,
+    hiddenCount: 0,
+    visibleItems: [],
+    hiddenItems: [],
+    totalItemsWidth: 0,
+  })
+  const [phase, setPhase] = useState<Phase>('idle')
+
+  const itemRefs = useRef<Map<string | number, HTMLSpanElement>>(new Map())
+  const calculatorRef = useRef<GeneratorCalculator | null>(null)
+
+  const getElement = useCallback(
+    (key: string | number): HTMLElement | null => {
+      return itemRefs.current.get(key) ?? null
+    },
+    []
+  )
+
+  const handleStateChange = useCallback(
+    (state: GeneratorState<OverflowResult>): void => {
+      setPhase(state.phase)
+      setResult(state.value)
+    },
+    []
+  )
+
+  useLayoutEffect(() => {
+    const calculator = new GeneratorCalculator({
+      gap: 4,
+      getElement,
+      onStateChange: handleStateChange,
+      restIndicatorWidth: 40,
+    })
+    calculatorRef.current = calculator
+
+    return () => {
+      calculator.reset()
+    }
+  }, [getElement, handleStateChange])
+
+  useLayoutEffect(() => {
+    const calculator = calculatorRef.current
+    if (!calculator) return
+
+    calculator.setItems(items)
+    calculator.calculate(containerWidth)
+
+    while (calculator.nextStep()) {
+      // Run through all steps synchronously
+    }
+  }, [items, containerWidth])
+
+  const handleAddItem = useCallback((): void => {
+    if (!newItemText.trim()) return
+    const newItem: OverflowItem = {
+      key: Date.now(),
+      text: newItemText.trim(),
+    }
+    setItems((prev) => [...prev, newItem])
+    setNewItemText('')
+  }, [newItemText])
+
+  const handleRemoveItem = useCallback((key: string | number): void => {
+    setItems((prev) => prev.filter((item) => item.key !== key))
+  }, [])
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent): void => {
+      if (e.key === 'Enter') {
+        handleAddItem()
+      }
+    },
+    [handleAddItem]
+  )
+
+  const setItemRef = useCallback(
+    (key: string | number) =>
+      (el: HTMLSpanElement | null): void => {
+        if (el) {
+          itemRefs.current.set(key, el)
+        } else {
+          itemRefs.current.delete(key)
+        }
+      },
+    []
+  )
+
+  return (
+    <div className="demo-section">
+      <h2>Generator Demo</h2>
+      <p style={{ color: '#666', marginBottom: 16 }}>
+        Uses DOM measurement with generator-based state machine for React
+        integration.
+      </p>
+
+      <div
+        className="demo-container"
+        style={{ width: containerWidth, maxWidth: '100%' }}
+      >
+        <div className="demo-items">
+          {result.visibleItems.map((item) => (
+            <span
+              key={item.key}
+              ref={setItemRef(item.key)}
+              className="demo-item"
+              onClick={() => handleRemoveItem(item.key)}
+              style={{ cursor: 'pointer' }}
+              title="Click to remove"
+            >
+              {item.text}
+            </span>
+          ))}
+          {result.hiddenItems.length > 0 && (
+            <span className="demo-rest-indicator">
+              {calculatorRef.current?.getRestIndicatorText(
+                result.hiddenItems.length
+              ) ?? `+${result.hiddenItems.length}`}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="demo-controls">
+        <label>
+          Container Width: {containerWidth}px
+          <input
+            type="range"
+            min={100}
+            max={800}
+            value={containerWidth}
+            onChange={(e) => setContainerWidth(Number(e.target.value))}
+          />
+        </label>
+        <span style={{ color: '#888', fontSize: 13 }}>
+          Phase: <code>{PHASE_LABELS[phase]}</code>
+        </span>
+      </div>
+
+      <div className="demo-controls">
+        <input
+          type="text"
+          placeholder="Add new item"
+          value={newItemText}
+          onChange={(e) => setNewItemText(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+        <button onClick={handleAddItem}>Add</button>
+      </div>
+
+      <div className="demo-info">
+        <p>
+          <strong>Visible:</strong> {result.visibleItems.length} items |{' '}
+          <strong>Hidden:</strong> {result.hiddenItems.length} items
+        </p>
+        {result.hiddenItems.length > 0 && (
+          <p>
+            <strong>Hidden items:</strong>{' '}
+            {result.hiddenItems.map((item) => item.text).join(', ')}
+          </p>
+        )}
+      </div>
+
+      <div style={MEASURE_CONTAINER_STYLE}>
+        {items.map((item) => (
+          <span key={item.key} ref={setItemRef(item.key)} className="demo-item">
+            {item.text}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
