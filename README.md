@@ -2,35 +2,28 @@
 
 A toolkit for calculating which items overflow a container and should be hidden.
 
-## Packages
-
-| Package | Description |
-|---------|-------------|
-| [@overflow-kit/core](./packages/core) | Pure calculation logic with no DOM dependencies |
-| [@overflow-kit/canvas](./packages/canvas) | Canvas-based text measurement for fast width calculation |
-| [@overflow-kit/generator](./packages/generator) | DOM-based measurement using generators for React integration |
-
 ## Installation
 
 ```bash
-# Core package (calculation only)
-pnpm add @overflow-kit/core
-
-# Canvas-based measurement
-pnpm add @overflow-kit/canvas
-
-# Generator-based measurement (for React)
-pnpm add @overflow-kit/generator
+npm install overflow-kit
 ```
+
+## Modules
+
+| Module | Description |
+|--------|-------------|
+| `overflow-kit/core` | Pure calculation logic with no DOM dependencies |
+| `overflow-kit/canvas` | Canvas-based text measurement for fast width calculation |
+| `overflow-kit/generator` | DOM-based measurement using generators for React integration |
 
 ## Usage
 
-### @overflow-kit/core
+### overflow-kit/core
 
 Pure calculation logic when you already have measured item widths:
 
 ```typescript
-import { OverflowCalculator } from '@overflow-kit/core'
+import { OverflowCalculator } from 'overflow-kit/core'
 
 const calculator = new OverflowCalculator({
   gap: 8,
@@ -50,12 +43,12 @@ console.log(result.hiddenItems)  // Items that overflow
 console.log(result.hiddenCount)  // Number to show in "+N" indicator
 ```
 
-### @overflow-kit/canvas
+### overflow-kit/canvas
 
 Measure text width using Canvas API without DOM rendering:
 
 ```typescript
-import { CanvasCalculator } from '@overflow-kit/canvas'
+import { CanvasCalculator } from 'overflow-kit/canvas'
 
 const calculator = new CanvasCalculator({
   font: '14px Inter, sans-serif',
@@ -75,7 +68,7 @@ const result = calculator.calculate(containerWidth)
 Or use the convenience function:
 
 ```typescript
-import { calculateWithCanvas } from '@overflow-kit/canvas'
+import { calculateWithCanvas } from 'overflow-kit/canvas'
 
 const result = calculateWithCanvas(items, containerWidth, {
   font: '14px Inter',
@@ -83,12 +76,12 @@ const result = calculateWithCanvas(items, containerWidth, {
 })
 ```
 
-### @overflow-kit/generator
+### overflow-kit/generator
 
 For React applications, use generators to measure actual DOM elements:
 
 ```typescript
-import { GeneratorCalculator } from '@overflow-kit/generator'
+import { GeneratorCalculator } from 'overflow-kit/generator'
 
 const calculator = new GeneratorCalculator({
   gap: 8,
