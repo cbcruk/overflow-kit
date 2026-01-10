@@ -3,7 +3,7 @@ import {
   CanvasCalculator,
   type OverflowItem,
   type OverflowResult,
-} from '@overflow-kit/canvas'
+} from 'overflow-kit/canvas'
 
 const SAMPLE_ITEMS: OverflowItem[] = [
   { key: 1, text: 'React' },

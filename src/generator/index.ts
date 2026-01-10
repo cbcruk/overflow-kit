@@ -22,4 +22,4 @@ export type {
   MeasuredItem,
   OverflowResult,
   CalculatorOptions,
-} from '@overflow-kit/core'
+} from '../core'

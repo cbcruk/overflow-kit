@@ -4,12 +4,12 @@ import type {
   CalculatorOptions,
   MeasuredItem,
   ItemStyle,
-} from '@overflow-kit/core'
-import { calculateOverflow, getRestIndicatorText } from '@overflow-kit/core'
+} from '../core'
+import { calculateOverflow, getRestIndicatorText } from '../core'
 import {
   createResizeObserverManager,
   type ResizeObserverManager,
-} from '@overflow-kit/utils'
+} from '../utils'
 import { TextMeasurer } from './text-measurer'
 
 /**

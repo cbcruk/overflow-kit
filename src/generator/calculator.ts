@@ -2,12 +2,12 @@ import type {
   OverflowItem,
   OverflowResult,
   MeasuredItem,
-} from '@overflow-kit/core'
-import { calculateOverflow, getRestIndicatorText } from '@overflow-kit/core'
+} from '../core'
+import { calculateOverflow, getRestIndicatorText } from '../core'
 import {
   createResizeObserverManager,
   type ResizeObserverManager,
-} from '@overflow-kit/utils'
+} from '../utils'
 import { DomMeasurer } from './dom-measurer'
 import { AutoMeasurer } from './auto-measurer'
 import {

@@ -9,8 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@overflow-kit/canvas": "workspace:*",
-    "@overflow-kit/generator": "workspace:*",
+    "overflow-kit": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

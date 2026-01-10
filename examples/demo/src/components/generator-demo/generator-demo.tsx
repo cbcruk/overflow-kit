@@ -5,7 +5,7 @@ import {
   type OverflowResult,
   type GeneratorState,
   type Phase,
-} from '@overflow-kit/generator'
+} from 'overflow-kit/generator'
 import styles from './generator-demo.module.css'
 
 const SAMPLE_ITEMS: OverflowItem[] = [

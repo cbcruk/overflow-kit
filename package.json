@@ -1,18 +1,55 @@
 {
   "name": "overflow-kit",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "Detect and handle overflow in containers with flexible measurement strategies",
   "type": "module",
+  "exports": {
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "import": "./dist/utils/index.js"
+    },
+    "./canvas": {
+      "types": "./dist/canvas/index.d.ts",
+      "import": "./dist/canvas/index.js"
+    },
+    "./generator": {
+      "types": "./dist/generator/index.d.ts",
+      "import": "./dist/generator/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "pnpm -r build",
-    "dev": "pnpm -r --parallel dev",
-    "test": "pnpm -r test",
-    "lint": "eslint packages/*/src",
-    "lint:fix": "eslint packages/*/src --fix",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "publish:packages": "pnpm -r publish --access public"
+    "prepublishOnly": "pnpm build"
   },
+  "keywords": [
+    "overflow",
+    "truncation",
+    "responsive",
+    "layout",
+    "canvas",
+    "text-measurement"
+  ],
+  "author": "cbcruk",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbcruk/overflow-kit.git"
+  },
+  "homepage": "https://github.com/cbcruk/overflow-kit#readme",
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@types/node": "^20.11.0",
@@ -20,6 +57,7 @@
     "eslint": "^9.17.0",
     "playwright": "^1.57.0",
     "prettier": "^3.2.0",
+    "tsup": "^8.0.1",
     "typescript": "^5.3.3",
     "typescript-eslint": "^8.18.0",
     "vitest": "^4.0.16"

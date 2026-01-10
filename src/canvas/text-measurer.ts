@@ -3,13 +3,13 @@ import type {
   MeasuredItem,
   OverflowItem,
   MeasurerOptions,
-} from '@overflow-kit/core'
+} from '../core'
 import {
   getFontFromElement,
   DEFAULT_ITEM_STYLE,
   calculateItemTotalWidth,
   mergeItemStyle,
-} from '@overflow-kit/core'
+} from '../core'
 
 /**
  * Measures text width using Canvas 2D API.

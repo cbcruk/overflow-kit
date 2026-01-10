@@ -13,4 +13,4 @@ export type {
   OverflowResult,
   CalculatorOptions,
   MeasurerOptions,
-} from '@overflow-kit/core'
+} from '../core'

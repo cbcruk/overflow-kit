@@ -1,4 +1,4 @@
-import type { OverflowItem, MeasuredItem } from '@overflow-kit/core'
+import type { OverflowItem, MeasuredItem } from '../core'
 
 export interface AutoMeasurerOptions {
   itemClassName?: string
