@@ -26,11 +26,11 @@ const PHASE_LABELS: Record<Phase, string> = {
 }
 
 const MEASURE_CONTAINER_STYLE: React.CSSProperties = {
-  position: 'absolute',
+  position: 'fixed',
+  left: -9999,
+  top: 0,
   visibility: 'hidden',
   pointerEvents: 'none',
-  top: 0,
-  left: 0,
 }
 
 export function GeneratorDemo(): JSX.Element {
