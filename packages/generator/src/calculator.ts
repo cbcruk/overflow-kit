@@ -9,6 +9,7 @@ import {
   type ResizeObserverManager,
 } from '@overflow-kit/utils'
 import { DomMeasurer } from './dom-measurer'
+import { AutoMeasurer } from './auto-measurer'
 import {
   GeneratorStateMachine,
   type Phase,
@@ -28,8 +29,12 @@ export interface GeneratorCalculatorOptions {
   restIndicatorText?: (count: number) => string
   /** Padding inside the container (in pixels). @default 0 */
   containerPadding?: number
-  /** Function to retrieve DOM element by item key */
-  getElement: (key: string | number) => HTMLElement | null
+  /** Function to retrieve DOM element by item key (manual mode) */
+  getElement?: (key: string | number) => HTMLElement | null
+  /** CSS class name to apply to measurement elements (auto mode) */
+  itemClassName?: string
+  /** Inline styles to apply to measurement elements (auto mode) */
+  itemStyle?: Partial<CSSStyleDeclaration>
   /** Callback invoked when state changes */
   onStateChange?: (state: GeneratorState<OverflowResult>) => void
   /** Container element to observe for size changes */
@@ -69,10 +74,17 @@ const createEmptyResult = (): OverflowResult => ({
  * ```
  */
 export class GeneratorCalculator {
-  private measurer: DomMeasurer
+  private domMeasurer: DomMeasurer | null = null
+  private autoMeasurer: AutoMeasurer | null = null
+  private useAutoMode: boolean
   private options: Omit<
     GeneratorCalculatorOptions,
-    'getElement' | 'onStateChange' | 'containerElement' | 'onResize'
+    | 'getElement'
+    | 'onStateChange'
+    | 'containerElement'
+    | 'onResize'
+    | 'itemClassName'
+    | 'itemStyle'
   >
   private stateMachine: GeneratorStateMachine<OverflowResult>
   private items: OverflowItem[] = []
@@ -81,9 +93,18 @@ export class GeneratorCalculator {
   private onResizeCallback?: (result: OverflowResult, width: number) => void
 
   constructor(options: GeneratorCalculatorOptions) {
-    this.measurer = new DomMeasurer({
-      getElement: options.getElement,
-    })
+    this.useAutoMode = !options.getElement
+
+    if (options.getElement) {
+      this.domMeasurer = new DomMeasurer({
+        getElement: options.getElement,
+      })
+    } else {
+      this.autoMeasurer = new AutoMeasurer({
+        itemClassName: options.itemClassName,
+        itemStyle: options.itemStyle,
+      })
+    }
 
     this.options = {
       gap: options.gap,
@@ -168,7 +189,11 @@ export class GeneratorCalculator {
       value: this.stateMachine.getState().value,
     }
 
-    this.measurements = this.measurer.measureAll(this.items)
+    if (this.useAutoMode && this.autoMeasurer) {
+      this.measurements = this.autoMeasurer.measureAll(this.items)
+    } else if (this.domMeasurer) {
+      this.measurements = this.domMeasurer.measureAll(this.items)
+    }
 
     yield {
       phase: 'calculating' as Phase,
@@ -254,6 +279,9 @@ export class GeneratorCalculator {
     this.disconnectObserver()
     this.stateMachine.reset(createEmptyResult())
     this.measurements.clear()
+    if (this.autoMeasurer) {
+      this.autoMeasurer.destroy()
+    }
   }
 }
 

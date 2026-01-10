@@ -1,6 +1,9 @@
 export { DomMeasurer, measureElement, measureElements } from './dom-measurer'
 export type { DomMeasurerOptions } from './dom-measurer'
 
+export { AutoMeasurer } from './auto-measurer'
+export type { AutoMeasurerOptions } from './auto-measurer'
+
 export { GeneratorStateMachine, createOverflowGenerator } from './state-machine'
 export type {
   Phase,

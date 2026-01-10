@@ -6,6 +6,7 @@ import {
   type GeneratorState,
   type Phase,
 } from '@overflow-kit/generator'
+import styles from './generator-demo.module.css'
 
 const SAMPLE_ITEMS: OverflowItem[] = [
   { key: 1, text: 'Dashboard' },
@@ -25,14 +26,6 @@ const PHASE_LABELS: Record<Phase, string> = {
   complete: 'Complete',
 }
 
-const MEASURE_CONTAINER_STYLE: React.CSSProperties = {
-  position: 'fixed',
-  left: -9999,
-  top: 0,
-  visibility: 'hidden',
-  pointerEvents: 'none',
-}
-
 export function GeneratorDemo(): JSX.Element {
   const [styleWidth, setStyleWidth] = useState(400)
   const [measuredWidth, setMeasuredWidth] = useState(400)
@@ -48,15 +41,7 @@ export function GeneratorDemo(): JSX.Element {
   const [phase, setPhase] = useState<Phase>('idle')
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const itemRefs = useRef<Map<string | number, HTMLSpanElement>>(new Map())
   const calculatorRef = useRef<GeneratorCalculator | null>(null)
-
-  const getElement = useCallback(
-    (key: string | number): HTMLElement | null => {
-      return itemRefs.current.get(key) ?? null
-    },
-    []
-  )
 
   const handleStateChange = useCallback(
     (state: GeneratorState<OverflowResult>): void => {
@@ -77,7 +62,7 @@ export function GeneratorDemo(): JSX.Element {
   useLayoutEffect(() => {
     const calculator = new GeneratorCalculator({
       gap: 4,
-      getElement,
+      itemClassName: styles.item,
       onStateChange: handleStateChange,
       onResize: handleResize,
       restIndicatorWidth: 40,
@@ -85,7 +70,7 @@ export function GeneratorDemo(): JSX.Element {
     calculatorRef.current = calculator
 
     return () => calculator.reset()
-  }, [getElement, handleStateChange, handleResize])
+  }, [handleStateChange, handleResize])
 
   useLayoutEffect(() => {
     const calculator = calculatorRef.current
@@ -130,18 +115,6 @@ export function GeneratorDemo(): JSX.Element {
     [handleAddItem]
   )
 
-  const setItemRef = useCallback(
-    (key: string | number) =>
-      (el: HTMLSpanElement | null): void => {
-        if (el) {
-          itemRefs.current.set(key, el)
-        } else {
-          itemRefs.current.delete(key)
-        }
-      },
-    []
-  )
-
   return (
     <div className="demo-section">
       <h2>Generator Demo</h2>
@@ -159,8 +132,7 @@ export function GeneratorDemo(): JSX.Element {
           {result.visibleItems.map((item) => (
             <span
               key={item.key}
-              ref={setItemRef(item.key)}
-              className="demo-item"
+              className={styles.item}
               onClick={() => handleRemoveItem(item.key)}
               style={{ cursor: 'pointer' }}
               title="Click to remove"
@@ -216,14 +188,6 @@ export function GeneratorDemo(): JSX.Element {
             {result.hiddenItems.map((item) => item.text).join(', ')}
           </p>
         )}
-      </div>
-
-      <div style={MEASURE_CONTAINER_STYLE}>
-        {items.map((item) => (
-          <span key={item.key} ref={setItemRef(item.key)} className="demo-item">
-            {item.text}
-          </span>
-        ))}
       </div>
     </div>
   )
