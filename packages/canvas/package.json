@@ -1,6 +1,7 @@
 {
   "name": "@overflow-kit/canvas",
   "version": "0.1.0",
+  "description": "Canvas-based text measurement for overflow detection",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -20,6 +21,20 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
+  "keywords": [
+    "overflow",
+    "canvas",
+    "text-measurement",
+    "truncation"
+  ],
+  "author": "cbcruk",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbcruk/overflow-kit.git",
+    "directory": "packages/canvas"
+  },
+  "homepage": "https://github.com/cbcruk/overflow-kit#readme",
   "dependencies": {
     "@overflow-kit/core": "workspace:*",
     "@overflow-kit/utils": "workspace:*"

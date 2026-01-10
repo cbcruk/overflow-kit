@@ -1,6 +1,7 @@
 {
   "name": "@overflow-kit/core",
   "version": "0.1.0",
+  "description": "Core overflow calculation logic for overflow-kit",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -10,12 +11,29 @@
       "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "dev": "tsup src/index.ts --format esm --dts --watch",
     "test": "vitest run",
     "test:watch": "vitest"
   },
+  "keywords": [
+    "overflow",
+    "truncation",
+    "responsive",
+    "layout"
+  ],
+  "author": "cbcruk",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbcruk/overflow-kit.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/cbcruk/overflow-kit#readme",
   "devDependencies": {
     "tsup": "^8.0.1",
     "typescript": "^5.3.3"

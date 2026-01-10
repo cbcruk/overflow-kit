@@ -10,7 +10,8 @@
     "lint": "eslint packages/*/src",
     "lint:fix": "eslint packages/*/src --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "publish:packages": "pnpm -r publish --access public"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
