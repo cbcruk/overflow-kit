@@ -72,6 +72,9 @@ importers:
       '@overflow-kit/core':
         specifier: workspace:*
         version: link:../core
+      '@overflow-kit/utils':
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
       tsup:
         specifier: ^8.0.1
@@ -94,6 +97,9 @@ importers:
       '@overflow-kit/core':
         specifier: workspace:*
         version: link:../core
+      '@overflow-kit/utils':
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
       tsup:
         specifier: ^8.0.1
@@ -101,6 +107,12 @@ importers:
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
+
+  packages/utils:
+    devDependencies:
+      typescript:
+        specifier: ^5.3.3
+        version: 5.6.3
 
 packages:
 

@@ -6,6 +6,10 @@ import type {
   ItemStyle,
 } from '@overflow-kit/core'
 import { calculateOverflow, getRestIndicatorText } from '@overflow-kit/core'
+import {
+  createResizeObserverManager,
+  type ResizeObserverManager,
+} from '@overflow-kit/utils'
 import { TextMeasurer } from './text-measurer'
 
 /**
@@ -51,9 +55,8 @@ export class CanvasCalculator {
   private measurer: TextMeasurer
   private options: CalculatorOptions
   private measuredItems: Map<string | number, MeasuredItem> = new Map()
-  private resizeObserver: ResizeObserver | null = null
-  private onResize?: (result: OverflowResult, width: number) => void
-  private containerWidth: number = 0
+  private resizeObserverManager: ResizeObserverManager
+  private onResizeCallback?: (result: OverflowResult, width: number) => void
 
   constructor(options: CanvasCalculatorOptions = {}) {
     this.measurer = new TextMeasurer({
@@ -70,7 +73,16 @@ export class CanvasCalculator {
       containerPadding: options.containerPadding,
     }
 
-    this.onResize = options.onResize
+    this.onResizeCallback = options.onResize
+
+    this.resizeObserverManager = createResizeObserverManager({
+      onResize: (width) => {
+        if (this.onResizeCallback && this.measuredItems.size > 0) {
+          const result = this.calculate(width)
+          this.onResizeCallback(result, width)
+        }
+      },
+    })
 
     if (options.containerElement) {
       this.observeContainer(options.containerElement)
@@ -82,37 +94,14 @@ export class CanvasCalculator {
    * @param element - Container element to observe
    */
   observeContainer(element: HTMLElement): void {
-    this.disconnectObserver()
-
-    this.resizeObserver = new ResizeObserver((entries) => {
-      const entry = entries[0]
-
-      if (entry) {
-        const width = entry.contentRect.width
-
-        if (width !== this.containerWidth) {
-          this.containerWidth = width
-
-          if (this.onResize && this.measuredItems.size > 0) {
-            const result = this.calculate(width)
-
-            this.onResize(result, width)
-          }
-        }
-      }
-    })
-
-    this.resizeObserver.observe(element)
+    this.resizeObserverManager.observe(element)
   }
 
   /**
    * Stops observing the container element.
    */
   disconnectObserver(): void {
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect()
-      this.resizeObserver = null
-    }
+    this.resizeObserverManager.disconnect()
   }
 
   /**

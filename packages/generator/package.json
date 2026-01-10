@@ -21,7 +21,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@overflow-kit/core": "workspace:*"
+    "@overflow-kit/core": "workspace:*",
+    "@overflow-kit/utils": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.0.1",
