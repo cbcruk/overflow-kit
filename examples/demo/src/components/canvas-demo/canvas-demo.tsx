@@ -1,5 +1,9 @@
-import { useState, useMemo, useCallback } from 'react'
-import { CanvasCalculator, type OverflowItem } from '@overflow-kit/canvas'
+import { useState, useCallback, useRef, useLayoutEffect, useEffect } from 'react'
+import {
+  CanvasCalculator,
+  type OverflowItem,
+  type OverflowResult,
+} from '@overflow-kit/canvas'
 
 const SAMPLE_ITEMS: OverflowItem[] = [
   { key: 1, text: 'React' },
@@ -12,13 +16,34 @@ const SAMPLE_ITEMS: OverflowItem[] = [
   { key: 8, text: 'Vite' },
 ]
 
+const EMPTY_RESULT: OverflowResult = {
+  visibleCount: 0,
+  hiddenCount: 0,
+  visibleItems: [],
+  hiddenItems: [],
+  totalItemsWidth: 0,
+}
+
 export function CanvasDemo(): JSX.Element {
-  const [containerWidth, setContainerWidth] = useState(400)
+  const [styleWidth, setStyleWidth] = useState(400)
+  const [measuredWidth, setMeasuredWidth] = useState(400)
   const [newItemText, setNewItemText] = useState('')
   const [items, setItems] = useState<OverflowItem[]>(SAMPLE_ITEMS)
+  const [result, setResult] = useState<OverflowResult>(EMPTY_RESULT)
 
-  const calculator = useMemo(() => {
-    const calc = new CanvasCalculator({
+  const containerRef = useRef<HTMLDivElement>(null)
+  const calculatorRef = useRef<CanvasCalculator | null>(null)
+
+  const handleResize = useCallback(
+    (newResult: OverflowResult, width: number): void => {
+      setResult(newResult)
+      setMeasuredWidth(width)
+    },
+    []
+  )
+
+  useLayoutEffect(() => {
+    const calculator = new CanvasCalculator({
       font: '14px -apple-system, BlinkMacSystemFont, sans-serif',
       gap: 4,
       itemStyle: {
@@ -26,14 +51,29 @@ export function CanvasDemo(): JSX.Element {
         paddingRight: 8,
         borderWidth: 1,
       },
+      onResize: handleResize,
     })
-    calc.setItems(items)
-    return calc
-  }, [items])
+    calculatorRef.current = calculator
 
-  const result = useMemo(() => {
-    return calculator.calculate(containerWidth)
-  }, [calculator, containerWidth])
+    return () => calculator.destroy()
+  }, [handleResize])
+
+  useLayoutEffect(() => {
+    const calculator = calculatorRef.current
+    const container = containerRef.current
+    if (!calculator || !container) return
+
+    calculator.observeContainer(container)
+  }, [])
+
+  useEffect(() => {
+    const calculator = calculatorRef.current
+    if (!calculator) return
+
+    calculator.setItems(items)
+    const newResult = calculator.calculate(measuredWidth)
+    setResult(newResult)
+  }, [items, measuredWidth])
 
   const handleAddItem = useCallback((): void => {
     if (!newItemText.trim()) return
@@ -66,8 +106,9 @@ export function CanvasDemo(): JSX.Element {
       </p>
 
       <div
+        ref={containerRef}
         className="demo-container"
-        style={{ width: containerWidth, maxWidth: '100%' }}
+        style={{ width: styleWidth, maxWidth: '100%' }}
       >
         <div className="demo-items">
           {result.visibleItems.map((item) => (
@@ -83,7 +124,9 @@ export function CanvasDemo(): JSX.Element {
           ))}
           {result.hiddenItems.length > 0 && (
             <span className="demo-rest-indicator">
-              {calculator.getRestIndicatorText(result.hiddenItems.length)}
+              {calculatorRef.current?.getRestIndicatorText(
+                result.hiddenItems.length
+              ) ?? `+${result.hiddenItems.length}`}
             </span>
           )}
         </div>
@@ -91,13 +134,13 @@ export function CanvasDemo(): JSX.Element {
 
       <div className="demo-controls">
         <label>
-          Container Width: {containerWidth}px
+          Container Width: {measuredWidth}px
           <input
             type="range"
             min={100}
             max={800}
-            value={containerWidth}
-            onChange={(e) => setContainerWidth(Number(e.target.value))}
+            value={styleWidth}
+            onChange={(e) => setStyleWidth(Number(e.target.value))}
           />
         </label>
       </div>

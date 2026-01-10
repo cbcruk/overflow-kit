@@ -28,6 +28,10 @@ export interface GeneratorCalculatorOptions {
   getElement: (key: string | number) => HTMLElement | null
   /** Callback invoked when state changes */
   onStateChange?: (state: GeneratorState<OverflowResult>) => void
+  /** Container element to observe for size changes */
+  containerElement?: HTMLElement
+  /** Callback invoked when container size changes */
+  onResize?: (result: OverflowResult, width: number) => void
 }
 
 const createEmptyResult = (): OverflowResult => ({
@@ -64,11 +68,14 @@ export class GeneratorCalculator {
   private measurer: DomMeasurer
   private options: Omit<
     GeneratorCalculatorOptions,
-    'getElement' | 'onStateChange'
+    'getElement' | 'onStateChange' | 'containerElement' | 'onResize'
   >
   private stateMachine: GeneratorStateMachine<OverflowResult>
   private items: OverflowItem[] = []
   private measurements: Map<string | number, MeasuredItem> = new Map()
+  private resizeObserver: ResizeObserver | null = null
+  private onResizeCallback?: (result: OverflowResult, width: number) => void
+  private containerWidth: number = 0
 
   constructor(options: GeneratorCalculatorOptions) {
     this.measurer = new DomMeasurer({
@@ -86,6 +93,50 @@ export class GeneratorCalculator {
       initialValue: createEmptyResult(),
       onStateChange: options.onStateChange,
     })
+
+    this.onResizeCallback = options.onResize
+
+    if (options.containerElement) {
+      this.observeContainer(options.containerElement)
+    }
+  }
+
+  /**
+   * Starts observing a container element for size changes.
+   * @param element - Container element to observe
+   */
+  observeContainer(element: HTMLElement): void {
+    this.disconnectObserver()
+
+    this.resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0]
+
+      if (entry) {
+        const width = entry.contentRect.width
+
+        if (width !== this.containerWidth) {
+          this.containerWidth = width
+
+          if (this.onResizeCallback && this.items.length > 0) {
+            const result = this.runToCompletion(width)
+
+            this.onResizeCallback(result, width)
+          }
+        }
+      }
+    })
+
+    this.resizeObserver.observe(element)
+  }
+
+  /**
+   * Stops observing the container element.
+   */
+  disconnectObserver(): void {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+      this.resizeObserver = null
+    }
   }
 
   /**
@@ -211,6 +262,7 @@ export class GeneratorCalculator {
    * Resets the calculator to idle state.
    */
   reset(): void {
+    this.disconnectObserver()
     this.stateMachine.reset(createEmptyResult())
     this.measurements.clear()
   }

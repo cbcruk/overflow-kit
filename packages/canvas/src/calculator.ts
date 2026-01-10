@@ -29,6 +29,10 @@ export interface CanvasCalculatorOptions {
   restIndicatorText?: (count: number) => string
   /** Padding inside the container (in pixels). @default 0 */
   containerPadding?: number
+  /** Container element to observe for size changes */
+  containerElement?: HTMLElement
+  /** Callback invoked when container size changes */
+  onResize?: (result: OverflowResult, width: number) => void
 }
 
 /**
@@ -47,6 +51,9 @@ export class CanvasCalculator {
   private measurer: TextMeasurer
   private options: CalculatorOptions
   private measuredItems: Map<string | number, MeasuredItem> = new Map()
+  private resizeObserver: ResizeObserver | null = null
+  private onResize?: (result: OverflowResult, width: number) => void
+  private containerWidth: number = 0
 
   constructor(options: CanvasCalculatorOptions = {}) {
     this.measurer = new TextMeasurer({
@@ -61,6 +68,50 @@ export class CanvasCalculator {
       restIndicatorWidth: options.restIndicatorWidth,
       restIndicatorText: options.restIndicatorText,
       containerPadding: options.containerPadding,
+    }
+
+    this.onResize = options.onResize
+
+    if (options.containerElement) {
+      this.observeContainer(options.containerElement)
+    }
+  }
+
+  /**
+   * Starts observing a container element for size changes.
+   * @param element - Container element to observe
+   */
+  observeContainer(element: HTMLElement): void {
+    this.disconnectObserver()
+
+    this.resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0]
+
+      if (entry) {
+        const width = entry.contentRect.width
+
+        if (width !== this.containerWidth) {
+          this.containerWidth = width
+
+          if (this.onResize && this.measuredItems.size > 0) {
+            const result = this.calculate(width)
+
+            this.onResize(result, width)
+          }
+        }
+      }
+    })
+
+    this.resizeObserver.observe(element)
+  }
+
+  /**
+   * Stops observing the container element.
+   */
+  disconnectObserver(): void {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+      this.resizeObserver = null
     }
   }
 
@@ -174,6 +225,7 @@ export class CanvasCalculator {
    * Cleans up resources. Call when done using the calculator.
    */
   destroy(): void {
+    this.disconnectObserver()
     this.measurer.destroy()
     this.measuredItems.clear()
   }

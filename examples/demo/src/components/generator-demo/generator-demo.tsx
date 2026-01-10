@@ -34,7 +34,8 @@ const MEASURE_CONTAINER_STYLE: React.CSSProperties = {
 }
 
 export function GeneratorDemo(): JSX.Element {
-  const [containerWidth, setContainerWidth] = useState(400)
+  const [styleWidth, setStyleWidth] = useState(400)
+  const [measuredWidth, setMeasuredWidth] = useState(400)
   const [newItemText, setNewItemText] = useState('')
   const [items, setItems] = useState<OverflowItem[]>(SAMPLE_ITEMS)
   const [result, setResult] = useState<OverflowResult>({
@@ -46,6 +47,7 @@ export function GeneratorDemo(): JSX.Element {
   })
   const [phase, setPhase] = useState<Phase>('idle')
 
+  const containerRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Map<string | number, HTMLSpanElement>>(new Map())
   const calculatorRef = useRef<GeneratorCalculator | null>(null)
 
@@ -64,31 +66,46 @@ export function GeneratorDemo(): JSX.Element {
     []
   )
 
+  const handleResize = useCallback(
+    (newResult: OverflowResult, width: number): void => {
+      setResult(newResult)
+      setMeasuredWidth(width)
+    },
+    []
+  )
+
   useLayoutEffect(() => {
     const calculator = new GeneratorCalculator({
       gap: 4,
       getElement,
       onStateChange: handleStateChange,
+      onResize: handleResize,
       restIndicatorWidth: 40,
     })
     calculatorRef.current = calculator
 
-    return () => {
-      calculator.reset()
-    }
-  }, [getElement, handleStateChange])
+    return () => calculator.reset()
+  }, [getElement, handleStateChange, handleResize])
+
+  useLayoutEffect(() => {
+    const calculator = calculatorRef.current
+    const container = containerRef.current
+    if (!calculator || !container) return
+
+    calculator.observeContainer(container)
+  }, [])
 
   useLayoutEffect(() => {
     const calculator = calculatorRef.current
     if (!calculator) return
 
     calculator.setItems(items)
-    calculator.calculate(containerWidth)
+    calculator.calculate(measuredWidth)
 
     while (calculator.nextStep()) {
       // Run through all steps synchronously
     }
-  }, [items, containerWidth])
+  }, [items, measuredWidth])
 
   const handleAddItem = useCallback((): void => {
     if (!newItemText.trim()) return
@@ -134,8 +151,9 @@ export function GeneratorDemo(): JSX.Element {
       </p>
 
       <div
+        ref={containerRef}
         className="demo-container"
-        style={{ width: containerWidth, maxWidth: '100%' }}
+        style={{ width: styleWidth, maxWidth: '100%' }}
       >
         <div className="demo-items">
           {result.visibleItems.map((item) => (
@@ -162,13 +180,13 @@ export function GeneratorDemo(): JSX.Element {
 
       <div className="demo-controls">
         <label>
-          Container Width: {containerWidth}px
+          Container Width: {measuredWidth}px
           <input
             type="range"
             min={100}
             max={800}
-            value={containerWidth}
-            onChange={(e) => setContainerWidth(Number(e.target.value))}
+            value={styleWidth}
+            onChange={(e) => setStyleWidth(Number(e.target.value))}
           />
         </label>
         <span style={{ color: '#888', fontSize: 13 }}>
