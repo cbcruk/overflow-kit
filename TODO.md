@@ -6,7 +6,7 @@
 - [x] `overflow-kit/react` 서브패키지 생성
 - [x] `useOverflow` 훅 구현 (generator 기반)
 - [x] `useCanvasOverflow` 훅 구현 (canvas 기반)
-- [ ] `<OverflowContainer>` 컴포넌트 구현
+- [x] `<OverflowContainer>` 컴포넌트 구현
 
 ### Testing
 - [x] core 패키지 유닛 테스트 추가

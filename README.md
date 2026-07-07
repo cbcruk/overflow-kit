@@ -55,6 +55,23 @@ Canvas API via `useCanvasOverflow(items, { font: '14px Inter', gap: 8 })`. Both
 hooks return the same shape (`visibleItems`, `hiddenItems`, `visibleCount`,
 `hiddenCount`, `getRestIndicatorText`, `recalculate`).
 
+Prefer a declarative component? `OverflowContainer` renders the container for
+you — pass `renderItem` and (optionally) `renderRest`:
+
+```tsx
+import { OverflowContainer } from 'overflow-kit/react'
+
+<OverflowContainer
+  items={tabs}
+  options={{ gap: 8, itemClassName: 'tab' }}
+  renderItem={(item) => <span className="tab">{item.text}</span>}
+  renderRest={(count) => <span className="tab">+{count}</span>}
+/>
+```
+
+Switch measurement strategy with `strategy="canvas"` (its `options` become
+`UseCanvasOverflowOptions`, e.g. `{ font: '14px Inter' }`).
+
 `react` is an optional peer dependency; install React yourself when using this
 module.
 
