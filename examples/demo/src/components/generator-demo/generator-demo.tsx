@@ -1,11 +1,5 @@
-import { useState, useRef, useCallback, useLayoutEffect } from 'react'
-import {
-  GeneratorCalculator,
-  type OverflowItem,
-  type OverflowResult,
-  type GeneratorState,
-  type Phase,
-} from 'overflow-kit/generator'
+import { useState, useCallback } from 'react'
+import { useOverflow, type OverflowItem } from 'overflow-kit/react'
 import styles from './generator-demo.module.css'
 
 const SAMPLE_ITEMS: OverflowItem[] = [
@@ -18,87 +12,26 @@ const SAMPLE_ITEMS: OverflowItem[] = [
   { key: 7, text: 'Documentation' },
 ]
 
-const PHASE_LABELS: Record<Phase, string> = {
-  idle: 'Idle',
-  rendering: 'Rendering',
-  measuring: 'Measuring',
-  calculating: 'Calculating',
-  complete: 'Complete',
-}
-
 export function GeneratorDemo(): JSX.Element {
-  const [styleWidth, setStyleWidth] = useState(400)
-  const [measuredWidth, setMeasuredWidth] = useState(400)
+  const [width, setWidth] = useState(400)
   const [newItemText, setNewItemText] = useState('')
   const [items, setItems] = useState<OverflowItem[]>(SAMPLE_ITEMS)
-  const [result, setResult] = useState<OverflowResult>({
-    visibleCount: 0,
-    hiddenCount: 0,
-    visibleItems: [],
-    hiddenItems: [],
-    totalItemsWidth: 0,
+
+  const {
+    containerRef,
+    visibleItems,
+    hiddenItems,
+    hiddenCount,
+    getRestIndicatorText,
+  } = useOverflow<HTMLDivElement>(items, {
+    gap: 4,
+    restIndicatorWidth: 40,
+    itemClassName: styles.item,
   })
-  const [phase, setPhase] = useState<Phase>('idle')
-
-  const containerRef = useRef<HTMLDivElement>(null)
-  const calculatorRef = useRef<GeneratorCalculator | null>(null)
-
-  const handleStateChange = useCallback(
-    (state: GeneratorState<OverflowResult>): void => {
-      setPhase(state.phase)
-      setResult(state.value)
-    },
-    []
-  )
-
-  const handleResize = useCallback(
-    (newResult: OverflowResult, width: number): void => {
-      setResult(newResult)
-      setMeasuredWidth(width)
-    },
-    []
-  )
-
-  useLayoutEffect(() => {
-    const calculator = new GeneratorCalculator({
-      gap: 4,
-      itemClassName: styles.item,
-      onStateChange: handleStateChange,
-      onResize: handleResize,
-      restIndicatorWidth: 40,
-    })
-    calculatorRef.current = calculator
-
-    return () => calculator.reset()
-  }, [handleStateChange, handleResize])
-
-  useLayoutEffect(() => {
-    const calculator = calculatorRef.current
-    const container = containerRef.current
-    if (!calculator || !container) return
-
-    calculator.observeContainer(container)
-  }, [])
-
-  useLayoutEffect(() => {
-    const calculator = calculatorRef.current
-    if (!calculator) return
-
-    calculator.setItems(items)
-    calculator.calculate(measuredWidth)
-
-    while (calculator.nextStep()) {
-      // Run through all steps synchronously
-    }
-  }, [items, measuredWidth])
 
   const handleAddItem = useCallback((): void => {
     if (!newItemText.trim()) return
-    const newItem: OverflowItem = {
-      key: Date.now(),
-      text: newItemText.trim(),
-    }
-    setItems((prev) => [...prev, newItem])
+    setItems((prev) => [...prev, { key: Date.now(), text: newItemText.trim() }])
     setNewItemText('')
   }, [newItemText])
 
@@ -108,28 +41,26 @@ export function GeneratorDemo(): JSX.Element {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent): void => {
-      if (e.key === 'Enter') {
-        handleAddItem()
-      }
+      if (e.key === 'Enter') handleAddItem()
     },
     [handleAddItem]
   )
 
   return (
     <div className="demo-section">
-      <h2>Generator Demo</h2>
+      <h2>useOverflow (DOM)</h2>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        Uses DOM measurement with generator-based state machine for React
-        integration.
+        The <code>useOverflow</code> hook measures items in the DOM and tracks
+        the container size automatically.
       </p>
 
       <div
         ref={containerRef}
         className="demo-container"
-        style={{ width: styleWidth, maxWidth: '100%' }}
+        style={{ width, maxWidth: '100%' }}
       >
         <div className="demo-items">
-          {result.visibleItems.map((item) => (
+          {visibleItems.map((item) => (
             <span
               key={item.key}
               className={styles.item}
@@ -140,11 +71,9 @@ export function GeneratorDemo(): JSX.Element {
               {item.text}
             </span>
           ))}
-          {result.hiddenItems.length > 0 && (
+          {hiddenCount > 0 && (
             <span className="demo-rest-indicator">
-              {calculatorRef.current?.getRestIndicatorText(
-                result.hiddenItems.length
-              ) ?? `+${result.hiddenItems.length}`}
+              {getRestIndicatorText(hiddenCount)}
             </span>
           )}
         </div>
@@ -152,18 +81,15 @@ export function GeneratorDemo(): JSX.Element {
 
       <div className="demo-controls">
         <label>
-          Container Width: {measuredWidth}px
+          Container Width: {width}px
           <input
             type="range"
             min={100}
             max={800}
-            value={styleWidth}
-            onChange={(e) => setStyleWidth(Number(e.target.value))}
+            value={width}
+            onChange={(e) => setWidth(Number(e.target.value))}
           />
         </label>
-        <span style={{ color: '#888', fontSize: 13 }}>
-          Phase: <code>{PHASE_LABELS[phase]}</code>
-        </span>
       </div>
 
       <div className="demo-controls">
@@ -179,13 +105,13 @@ export function GeneratorDemo(): JSX.Element {
 
       <div className="demo-info">
         <p>
-          <strong>Visible:</strong> {result.visibleItems.length} items |{' '}
-          <strong>Hidden:</strong> {result.hiddenItems.length} items
+          <strong>Visible:</strong> {visibleItems.length} items |{' '}
+          <strong>Hidden:</strong> {hiddenItems.length} items
         </p>
-        {result.hiddenItems.length > 0 && (
+        {hiddenItems.length > 0 && (
           <p>
             <strong>Hidden items:</strong>{' '}
-            {result.hiddenItems.map((item) => item.text).join(', ')}
+            {hiddenItems.map((item) => item.text).join(', ')}
           </p>
         )}
       </div>

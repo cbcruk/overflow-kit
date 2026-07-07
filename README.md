@@ -12,9 +12,51 @@ npm install overflow-kit
 
 | Module | Description |
 |--------|-------------|
+| `overflow-kit/react` | React hooks (`useOverflow`, `useCanvasOverflow`) — the easiest way to use the kit |
 | `overflow-kit/core` | Pure calculation logic with no DOM dependencies |
 | `overflow-kit/canvas` | Canvas-based text measurement for fast width calculation |
 | `overflow-kit/generator` | DOM-based measurement using generators for React integration |
+
+## Quick start (React)
+
+The `overflow-kit/react` module wraps the measurement and calculation lifecycle
+in a hook. Attach `containerRef` to the element whose width should drive the
+layout, render `visibleItems`, and show `getRestIndicatorText(hiddenCount)` for
+the overflow indicator. Resizing is tracked automatically.
+
+```tsx
+import { useOverflow, type OverflowItem } from 'overflow-kit/react'
+
+const TABS: OverflowItem[] = [
+  { key: 'home', text: 'Home' },
+  { key: 'projects', text: 'Projects' },
+  { key: 'settings', text: 'Settings' },
+]
+
+function Tabs() {
+  const { containerRef, visibleItems, hiddenCount, getRestIndicatorText } =
+    useOverflow(TABS, { gap: 8, itemClassName: 'tab' })
+
+  return (
+    <div ref={containerRef} style={{ display: 'flex', gap: 8, overflow: 'hidden' }}>
+      {visibleItems.map((item) => (
+        <span key={item.key} className="tab">
+          {item.text}
+        </span>
+      ))}
+      {hiddenCount > 0 && <span className="tab">{getRestIndicatorText(hiddenCount)}</span>}
+    </div>
+  )
+}
+```
+
+For text-only items you can skip DOM rendering entirely and measure with the
+Canvas API via `useCanvasOverflow(items, { font: '14px Inter', gap: 8 })`. Both
+hooks return the same shape (`visibleItems`, `hiddenItems`, `visibleCount`,
+`hiddenCount`, `getRestIndicatorText`, `recalculate`).
+
+`react` is an optional peer dependency; install React yourself when using this
+module.
 
 ## Usage
 

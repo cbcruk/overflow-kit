@@ -6,9 +6,11 @@ export default defineConfig({
     'utils/index': 'src/utils/index.ts',
     'canvas/index': 'src/canvas/index.ts',
     'generator/index': 'src/generator/index.ts',
+    'react/index': 'src/react/index.ts',
   },
   format: ['esm'],
   dts: true,
   clean: true,
   splitting: false,
+  external: ['react'],
 })
