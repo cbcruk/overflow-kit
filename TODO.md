@@ -10,9 +10,9 @@
 
 ### Testing
 - [x] core 패키지 유닛 테스트 추가
-- [x] react 훅 통합 테스트 추가 (happy-dom)
-- [ ] canvas 패키지 유닛 테스트 추가
-- [ ] generator 패키지 유닛 테스트 추가
+- [x] react 훅/컴포넌트 통합 테스트 추가 (happy-dom)
+- [x] canvas 패키지 유닛 테스트 추가 (text-measurer, calculator)
+- [x] generator 패키지 유닛 테스트 추가 (state-machine, dom/auto measurer, calculator)
 - [ ] E2E 테스트 (Playwright) 추가
 
 ### Documentation
