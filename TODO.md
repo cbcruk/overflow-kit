@@ -3,22 +3,26 @@
 ## High Priority
 
 ### React Integration
-- [ ] `@overflow-kit/react` 패키지 생성
-- [ ] `useOverflow` 훅 구현 (generator 기반)
-- [ ] `useCanvasOverflow` 훅 구현 (canvas 기반)
-- [ ] `<OverflowContainer>` 컴포넌트 구현
+- [x] `overflow-kit/react` 서브패키지 생성
+- [x] `useOverflow` 훅 구현 (generator 기반)
+- [x] `useCanvasOverflow` 훅 구현 (canvas 기반)
+- [x] `<OverflowContainer>` 컴포넌트 구현
 
 ### Testing
-- [ ] core 패키지 유닛 테스트 추가
-- [ ] canvas 패키지 유닛 테스트 추가
-- [ ] generator 패키지 유닛 테스트 추가
-- [ ] E2E 테스트 (Playwright) 추가
+- [x] core 패키지 유닛 테스트 추가
+- [x] react 훅/컴포넌트 통합 테스트 추가 (happy-dom)
+- [x] canvas 패키지 유닛 테스트 추가 (text-measurer, calculator)
+- [x] generator 패키지 유닛 테스트 추가 (state-machine, dom/auto measurer, calculator)
+- [x] E2E 테스트 (Playwright) 추가 (데모 앱 실브라우저 검증)
 
 ### Documentation
-- [ ] README.md 작성 (설치, 사용법, API)
-- [ ] 각 패키지별 README 작성
+- [x] README.md 작성 (설치, 사용법, API)
+- [x] React 훅 사용법 문서화
 - [ ] JSDoc 주석 보강
-- [ ] 예제 코드 추가
+- [x] 예제 코드 추가 (데모를 훅 기반으로 전환)
+
+### CI/CD
+- [x] CI 파이프라인 추가 (lint, format, build, test)
 
 ## Medium Priority
 

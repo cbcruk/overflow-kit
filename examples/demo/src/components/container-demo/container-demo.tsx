@@ -1,33 +1,20 @@
 import { useState, useCallback } from 'react'
-import { useOverflow, type OverflowItem } from 'overflow-kit/react'
-import styles from './generator-demo.module.css'
+import { OverflowContainer, type OverflowItem } from 'overflow-kit/react'
 
 const SAMPLE_ITEMS: OverflowItem[] = [
-  { key: 1, text: 'Dashboard' },
-  { key: 2, text: 'Analytics' },
-  { key: 3, text: 'Settings' },
-  { key: 4, text: 'Profile' },
-  { key: 5, text: 'Notifications' },
-  { key: 6, text: 'Help Center' },
-  { key: 7, text: 'Documentation' },
+  { key: 1, text: 'Design' },
+  { key: 2, text: 'Engineering' },
+  { key: 3, text: 'Marketing' },
+  { key: 4, text: 'Sales' },
+  { key: 5, text: 'Support' },
+  { key: 6, text: 'Operations' },
+  { key: 7, text: 'Finance' },
 ]
 
-export function GeneratorDemo(): JSX.Element {
+export function ContainerDemo(): JSX.Element {
   const [width, setWidth] = useState(400)
   const [newItemText, setNewItemText] = useState('')
   const [items, setItems] = useState<OverflowItem[]>(SAMPLE_ITEMS)
-
-  const {
-    containerRef,
-    visibleItems,
-    hiddenItems,
-    hiddenCount,
-    getRestIndicatorText,
-  } = useOverflow<HTMLDivElement>(items, {
-    gap: 4,
-    restIndicatorWidth: 40,
-    itemClassName: styles.item,
-  })
 
   const handleAddItem = useCallback((): void => {
     if (!newItemText.trim()) return
@@ -48,35 +35,31 @@ export function GeneratorDemo(): JSX.Element {
 
   return (
     <div className="demo-section">
-      <h2>useOverflow (DOM)</h2>
+      <h2>OverflowContainer (declarative)</h2>
       <p style={{ color: '#666', marginBottom: 16 }}>
-        The <code>useOverflow</code> hook measures items in the DOM and tracks
-        the container size automatically.
+        The <code>OverflowContainer</code> component wraps the hook with{' '}
+        <code>renderItem</code> / <code>renderRest</code> props.
       </p>
 
-      <div
-        ref={containerRef}
-        className="demo-container"
-        style={{ width, maxWidth: '100%' }}
-      >
-        <div className="demo-items">
-          {visibleItems.map((item) => (
+      <div className="demo-container" style={{ width, maxWidth: '100%' }}>
+        <OverflowContainer
+          className="demo-items"
+          items={items}
+          options={{ gap: 4, restIndicatorWidth: 40 }}
+          renderItem={(item) => (
             <span
-              key={item.key}
-              className={styles.item}
+              className="demo-item"
               onClick={() => handleRemoveItem(item.key)}
               style={{ cursor: 'pointer' }}
               title="Click to remove"
             >
               {item.text}
             </span>
-          ))}
-          {hiddenCount > 0 && (
-            <span className="demo-rest-indicator">
-              {getRestIndicatorText(hiddenCount)}
-            </span>
           )}
-        </div>
+          renderRest={(count) => (
+            <span className="demo-rest-indicator">+{count}</span>
+          )}
+        />
       </div>
 
       <div className="demo-controls">
@@ -101,19 +84,6 @@ export function GeneratorDemo(): JSX.Element {
           onKeyDown={handleKeyDown}
         />
         <button onClick={handleAddItem}>Add</button>
-      </div>
-
-      <div className="demo-info">
-        <p>
-          <strong>Visible:</strong> {visibleItems.length} items |{' '}
-          <strong>Hidden:</strong> {hiddenItems.length} items
-        </p>
-        {hiddenItems.length > 0 && (
-          <p>
-            <strong>Hidden items:</strong>{' '}
-            {hiddenItems.map((item) => item.text).join(', ')}
-          </p>
-        )}
       </div>
     </div>
   )

@@ -19,6 +19,10 @@
     "./generator": {
       "types": "./dist/generator/index.d.ts",
       "import": "./dist/generator/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js"
     }
   },
   "files": [
@@ -29,6 +33,7 @@
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "format": "prettier --write .",
@@ -50,13 +55,28 @@
     "url": "git+https://github.com/cbcruk/overflow-kit.git"
   },
   "homepage": "https://github.com/cbcruk/overflow-kit#readme",
+  "peerDependencies": {
+    "react": ">=17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@playwright/test": "1.57.0",
+    "@testing-library/react": "^16.1.0",
     "@types/node": "^20.11.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "@vitest/browser-playwright": "^4.0.16",
     "eslint": "^9.17.0",
+    "happy-dom": "^15.11.7",
     "playwright": "^1.57.0",
     "prettier": "^3.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
     "typescript-eslint": "^8.18.0",
