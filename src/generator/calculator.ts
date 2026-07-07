@@ -1,8 +1,4 @@
-import type {
-  OverflowItem,
-  OverflowResult,
-  MeasuredItem,
-} from '../core'
+import type { OverflowItem, OverflowResult, MeasuredItem } from '../core'
 import { calculateOverflow, getRestIndicatorText } from '../core'
 import {
   createResizeObserverManager,
